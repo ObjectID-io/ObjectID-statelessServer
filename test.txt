@@ -1,0 +1,11 @@
+    curl -X POST http://192.168.1.5:3001/create_object \
+      -H "Content-Type: application/json" \
+      -d '{
+            "object_type": "food",
+            "product_url": "https://nxc.technology/pasta",
+            "description": "maccheroni",
+            "op_code": "",
+            "immutable_metadata": "",
+            "mutable_metadata": "",
+            "geo_location": ""
+          }'
