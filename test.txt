@@ -9,3 +9,11 @@
             "mutable_metadata": "",
             "geo_location": ""
           }'
+
+
+    curl -X POST http://192.168.1.5:3001/update_object_mutable_metadata \
+      -H "Content-Type: application/json" \
+      -d '{
+            "object": "0xc9520e0a3153473653e14231d26d8a4e94e65e6e8c76e96f8ef0862e041345d4",
+            "new_mutable_metadata": ""
+          }'
