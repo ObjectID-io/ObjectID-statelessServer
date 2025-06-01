@@ -8,7 +8,7 @@ exports.waitForFaucetTokens = waitForFaucetTokens;
 const bcs_1 = require("@iota/bcs");
 const axios_1 = __importDefault(require("axios"));
 const faucet_1 = require("@iota/iota-sdk/faucet");
-async function singAndExecTx(network, client, gasStation, useGasStation, { keyPair, tx }, callbacks) {
+async function singAndExecTx(network, client, gasStation, useGasStation, keyPair, tx, callbacks) {
     try {
         if (useGasStation) {
             return await executeWithGasStation(network, client, gasStation, keyPair, tx, callbacks);

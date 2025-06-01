@@ -105,18 +105,18 @@ router.post("/create_object", async (req: Request, res: Response) => {
     const tx = new Transaction();
     const moveFunction = defaultPackageID + "::oid_object::create_object";
 
-    console.log("==============================================================");
-    console.log(" create_object");
-    console.log("==============================================================");
-    console.log("creditToken: ", creditToken);
-    console.log("policy: ", policy);
-    console.log("OIDcontrollerCap: ", OIDcontrollerCap);
-    console.log("object_type: ", object_type);
-    console.log("product_url: ", product_url);
-    console.log("op_code: ", op_code);
-    console.log("JSON.stringify(immutable_metadata): ", JSON.stringify(immutable_metadata));
-    console.log("JSON.stringify(mutable_metadata): ", JSON.stringify(mutable_metadata));
-    console.log("geo_location: ", geo_location);
+    logInputs("create_object", {
+      network,
+      creditToken,
+      policy,
+      OIDcontrollerCap,
+      object_type,
+      product_url,
+      op_code,
+      immutable_metadata,
+      mutable_metadata,
+      geo_location,
+    });
 
     tx.moveCall({
       arguments: [
