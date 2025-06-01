@@ -30,16 +30,12 @@ export interface QueryResult {
   };
 }
 
-export const searchObjectsByType = async (
-  objectType: string,
-  graphqlProvider: string
-) => {
-
+export const searchObjectsByType = async (objectType: string, after: string | null, graphqlProvider: string) => {
   const gqlClient = new IotaGraphQLClient({
     url: graphqlProvider,
   });
 
-  const querystring = `
+  const old_querystring = `
       query ($type: String!) {
         objects(filter: { type: $type }) {
           edges {
@@ -59,6 +55,31 @@ export const searchObjectsByType = async (
       }
     `;
 
+  const querystring = `
+  query ($type: String!, $after: String) {
+  objects(filter: { type: $type }, after: $after) {
+    edges {
+      cursor
+      node {
+        address
+        asMoveObject {
+          contents {
+            type {
+              repr
+            }
+            data
+          }
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+    `;
+
   try {
     const queryObjects = graphql(querystring);
 
@@ -67,12 +88,7 @@ export const searchObjectsByType = async (
       variables: { type: objectType },
     });
 
-    if (
-      !result ||
-      !result.data ||
-      !result.data.objects ||
-      !result.data.objects.edges
-    ) {
+    if (!result || !result.data || !result.data.objects || !result.data.objects.edges) {
       throw new Error("No data returned from the GraphQL query.");
     }
 

@@ -20,13 +20,58 @@
 
 
 
-curl -k -X POST https://slserver@objectid.io/update_geo_location \
+curl -k -X POST https://slserver.objectid.io/update_geo_location \
   -H "Content-Type: application/json" \
   -d '{
     "seed": "2c9510611b24a657a47f28192573fbe0355378fa2cb16fd8fde9fb83fef4b780",
     "network": "testnet",
-    "creditToken": "8FHQCQVF+X3",
+    "creditToken": "0x3bffefc34632bd4862ed443b0dcedc15afc56f3ac04bd8922fd172dc74f71fee",
     "controllerCap": "0x7fb33d4aac9ca0c3d4c6e25ce14cb3a6fd7c56322a0ef66cf3359dfed8b9d50c",
     "object": "0xe4b193f4db4a94c010d87abe68a2ac61c0e72abeb4d71b640ce80bf938151687",
     "new_location": "8FHQCQVF+X3"
   }'
+
+
+  curl -k -X POST https://172.26.90.108:3002/update_geo_location \
+  -H "Content-Type: application/json" \
+  -d '{
+    "seed": "2c9510611b24a657a47f28192573fbe0355378fa2cb16fd8fde9fb83fef4b780",
+    "network": "testnet",
+    "creditToken": "0x3bffefc34632bd4862ed443b0dcedc15afc56f3ac04bd8922fd172dc74f71fee",
+    "controllerCap": "0x7fb33d4aac9ca0c3d4c6e25ce14cb3a6fd7c56322a0ef66cf3359dfed8b9d50c",
+    "object": "0xe4b193f4db4a94c010d87abe68a2ac61c0e72abeb4d71b640ce80bf938151687",
+    "new_location": "8FHQCQVF+X3"
+  }'
+
+
+  $response = Invoke-RestMethod -Uri "http://localhost:3002/update_geo_location" `
+                              -Method POST `
+                              -Headers @{ "Content-Type" = "application/json" } `
+                              -Body '{
+                                "seed": "2c9510611b24a657a47f28192573fbe0355378fa2cb16fd8fde9fb83fef4b780",
+                                "network": "testnet",
+                                "creditToken": "0x3bffefc34632bd4862ed443b0dcedc15afc56f3ac04bd8922fd172dc74f71fee",
+                                "controllerCap": "0x7fb33d4aac9ca0c3d4c6e25ce14cb3a6fd7c56322a0ef66cf3359dfed8b9d50c",
+                                "object": "0xe4b193f4db4a94c010d87abe68a2ac61c0e72abeb4d71b640ce80bf938151687",
+                                "new_location": "8FHQCQVF+X3"
+                              }'
+
+
+
+  $response = Invoke-RestMethod -Uri "https://slserver.objectid.io/get_objects_by_address" `
+                              -Method POST `
+                              -Headers @{ "Content-Type" = "application/json" } `
+                              -Body '{
+                                "network": "testnet",
+                                "address": "0x8c99044665b8f62e1e6316a33601bb870a640140407e5fbbfedaea49c59b2735"
+                              }'
+
+  $response = Invoke-RestMethod -Uri "http://localhost:3002/get_objects" `
+                              -Method POST `
+                              -Headers @{ "Content-Type" = "application/json" } `
+                              -Body '{
+                                "network": "testnet",
+                                "after": "IOSxk/TbSpTAENh6vmiirGHA5yq+tNcbZAzoC/k4FRaHeNSBBAAAAAA="
+                              }'
+
+

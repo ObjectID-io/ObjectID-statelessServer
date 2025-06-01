@@ -9,10 +9,12 @@ import { gasStationCfg, singAndExecTx } from "./utils/signAndExecTx";
 
 const router = Router();
 
+const nullSeed = "0000000000000000000000000000000000000000000000000000000000000000";
+
 //--- Inizializzazione delle costanti e variabili globali ---
 let creditToken: string;
 let policy: string;
-let defaultPackageID: string;
+let packageID: string;
 let client: IotaClient;
 let keyPair: Ed25519Keypair;
 let configuration_object: string;
@@ -26,6 +28,7 @@ let gasStation: gasStationCfg = {
 let useGasStation = false;
 let tokenCreditType: string;
 let policyTokenType: string;
+let OIDobjectType: string;
 
 function logInputs(route: string, inputs: any) {
   console.log("==============================================================");
@@ -46,23 +49,16 @@ async function setupEnv(seed: string, network: string) {
   keyPair = Ed25519Keypair.deriveKeypairFromSeed(seed);
 
   if (network == "testnet") {
-    configuration_object =
-      process.env.CONFIGURATION_OBJECT || "0x8b8a88963245733f4109b3277ee4691790d178c1be5261f9272e63c1cf184f88";
-
-    const onchainCfgObject = (await getObject(client, configuration_object)) as any;
-
-    if (!onchainCfgObject || !onchainCfgObject.content || !onchainCfgObject.content.fields) {
-      throw new Error("Invalid configuration object received from the blockchain");
-    }
-
-    defaultPackageID = onchainCfgObject.content.fields.official_packages[0];
+    packageID = "0x5c915ac6b2c5156bdc79307cb1c23ea3d4a0897f2140de51e55fc0ad9f47b920";
+    console.log("defaultPackageID:", packageID);
 
     graphqlProvider = process.env.GRAPHQL_PROVIDER || "https://graphql.testnet.iota.cafe/";
 
-    tokenCreditType = `0x2::token::Token<${defaultPackageID}::oid_credit::OID_CREDIT>`;
-    policyTokenType = `0x2::token::TokenPolicy<${defaultPackageID}::oid_credit::OID_CREDIT>`;
+    tokenCreditType = `0x2::token::Token<${packageID}::oid_credit::OID_CREDIT>`;
+    policyTokenType = `0x2::token::TokenPolicy<${packageID}::oid_credit::OID_CREDIT>`;
+    OIDobjectType = `${packageID}::oid_object::OIDObject`;
 
-    const pedges: ObjectEdge[] = await searchObjectsByType(policyTokenType, graphqlProvider);
+    const pedges: ObjectEdge[] = await searchObjectsByType(policyTokenType, null, graphqlProvider);
 
     policy = pedges[0].node.address;
   } else {
@@ -103,7 +99,7 @@ router.post("/create_object", async (req: Request, res: Response) => {
     const { client, keyPair, graphqlProvider, policy } = await setupEnv(seed, network);
 
     const tx = new Transaction();
-    const moveFunction = defaultPackageID + "::oid_object::create_object";
+    const moveFunction = packageID + "::oid_object::create_object";
 
     logInputs("create_object", {
       network,
@@ -180,7 +176,7 @@ router.post("/update_object_mutable_metadata", async (req: Request, res: Respons
     const { client, keyPair, policy } = await setupEnv(seed, network);
 
     const tx = new Transaction();
-    const moveFunction = defaultPackageID + "::oid_object::update_object_mutable_metadata";
+    const moveFunction = packageID + "::oid_object::update_object_mutable_metadata";
 
     tx.moveCall({
       arguments: [
@@ -236,7 +232,7 @@ router.post("/update_owner_did", async (req: Request, res: Response) => {
     const { client, keyPair, policy } = await setupEnv(seed, network);
 
     const tx = new Transaction();
-    const moveFunction = defaultPackageID + "::oid_object::update_owner_did";
+    const moveFunction = packageID + "::oid_object::update_owner_did";
 
     tx.moveCall({
       arguments: [
@@ -276,7 +272,7 @@ router.post("/update_agent_did", async (req: Request, res: Response) => {
     const { client, keyPair, policy } = await setupEnv(seed, network);
 
     const tx = new Transaction();
-    const moveFunction = defaultPackageID + "::oid_object::update_agent_did";
+    const moveFunction = packageID + "::oid_object::update_agent_did";
 
     tx.moveCall({
       arguments: [
@@ -316,7 +312,7 @@ router.post("/update_geo_location", async (req: Request, res: Response) => {
     const { client, keyPair, policy } = await setupEnv(seed, network);
 
     const tx = new Transaction();
-    const moveFunction = defaultPackageID + "::oid_object::update_geo_location";
+    const moveFunction = packageID + "::oid_object::update_geo_location";
 
     tx.moveCall({
       arguments: [
@@ -355,7 +351,7 @@ router.post("/delete_object", async (req: Request, res: Response) => {
     const { client, keyPair, policy } = await setupEnv(seed, network);
 
     const tx = new Transaction();
-    const moveFunction = defaultPackageID + "::oid_object::delete_object";
+    const moveFunction = packageID + "::oid_object::delete_object";
 
     tx.moveCall({
       arguments: [tx.object(creditToken), tx.object(policy), tx.object(controllerCap), tx.object(object)],
@@ -392,7 +388,7 @@ router.post("/create_event", async (req: Request, res: Response) => {
 
     const { client, keyPair, policy } = await setupEnv(seed, network);
     const tx = new Transaction();
-    const moveFunction = defaultPackageID + "::oid_object::create_event";
+    const moveFunction = packageID + "::oid_object::create_event";
 
     tx.moveCall({
       arguments: [
@@ -433,7 +429,7 @@ router.post("/update_event_mutable_metadata", async (req: Request, res: Response
 
     const { client, keyPair, policy } = await setupEnv(seed, network);
     const tx = new Transaction();
-    const moveFunction = defaultPackageID + "::oid_object::update_event_mutable_metadata";
+    const moveFunction = packageID + "::oid_object::update_event_mutable_metadata";
 
     tx.moveCall({
       arguments: [
@@ -472,7 +468,7 @@ router.post("/delete_event", async (req: Request, res: Response) => {
 
     const { client, keyPair, policy } = await setupEnv(seed, network);
     const tx = new Transaction();
-    const moveFunction = defaultPackageID + "::oid_object::delete_event";
+    const moveFunction = packageID + "::oid_object::delete_event";
 
     tx.moveCall({
       arguments: [
@@ -527,7 +523,7 @@ router.post("/create_counter", async (req: Request, res: Response) => {
 
     const { client, keyPair, policy } = await setupEnv(seed, network);
     const tx = new Transaction();
-    const moveFunction = defaultPackageID + "::oid_object::create_counter";
+    const moveFunction = packageID + "::oid_object::create_counter";
 
     tx.moveCall({
       arguments: [
@@ -571,7 +567,7 @@ router.post("/delete_counter", async (req: Request, res: Response) => {
 
     const { client, keyPair, policy } = await setupEnv(seed, network);
     const tx = new Transaction();
-    const moveFunction = defaultPackageID + "::oid_object::delete_counter";
+    const moveFunction = packageID + "::oid_object::delete_counter";
 
     tx.moveCall({
       arguments: [
@@ -611,7 +607,7 @@ router.post("/counter_stepup", async (req: Request, res: Response) => {
 
     const { client, keyPair, policy } = await setupEnv(seed, network);
     const tx = new Transaction();
-    const moveFunction = defaultPackageID + "::oid_object::counter_stepup";
+    const moveFunction = packageID + "::oid_object::counter_stepup";
 
     tx.moveCall({
       arguments: [
@@ -650,7 +646,7 @@ router.post("/counter_stepdown", async (req: Request, res: Response) => {
 
     const { client, keyPair, policy } = await setupEnv(seed, network);
     const tx = new Transaction();
-    const moveFunction = defaultPackageID + "::oid_object::counter_stepdown";
+    const moveFunction = packageID + "::oid_object::counter_stepdown";
 
     tx.moveCall({
       arguments: [
@@ -690,7 +686,7 @@ router.post("/counter_set_value", async (req: Request, res: Response) => {
 
     const { client, keyPair, policy } = await setupEnv(seed, network);
     const tx = new Transaction();
-    const moveFunction = defaultPackageID + "::oid_object::counter_set_value";
+    const moveFunction = packageID + "::oid_object::counter_set_value";
 
     tx.moveCall({
       arguments: [
@@ -717,16 +713,6 @@ router.post("/counter_set_value", async (req: Request, res: Response) => {
   }
 });
 
-router.stack.forEach((r: any) => {
-  if (r.route && r.route.path) {
-    console.log(`✅ Route attiva: ${r.route.path}`);
-  } else if (r.name === "router") {
-    console.log("➡️ Sub-router o middleware attivo");
-  } else {
-    console.log("❓ Entry non riconosciuta nello stack:", r);
-  }
-});
-
 router.post("/get_object", async (req: Request, res: Response) => {
   try {
     const { network, objectId } = req.body;
@@ -736,13 +722,46 @@ router.post("/get_object", async (req: Request, res: Response) => {
       objectId,
     });
 
-    client = new IotaClient({ url: getFullnodeUrl(network) });
+    const { client } = await setupEnv(nullSeed, network);
 
     const objectData = getObject(client, network);
 
     res.json({ success: true, objectData });
   } catch (err) {
     console.error("Unexpected error:", err);
+  }
+});
+
+router.post("/get_objects", async (req: Request, res: Response) => {
+  try {
+    const { network, after } = req.body;
+
+    logInputs("get_objects_by_address", {
+      network,
+      after,
+    });
+
+    const { graphqlProvider } = await setupEnv(nullSeed, network);
+
+    const objectsList = await searchObjectsByType(OIDobjectType, after, graphqlProvider);
+
+    console.log("objectType:", OIDobjectType);
+
+    console.log("objectsList:", objectsList);
+
+    res.json({ success: true, objectsList });
+  } catch (err) {
+    console.error("Unexpected error:", err);
+  }
+});
+
+router.stack.forEach((r: any) => {
+  if (r.route && r.route.path) {
+    console.log(`✅ Route attiva: ${r.route.path}`);
+  } else if (r.name === "router") {
+    console.log("➡️ Sub-router o middleware attivo");
+  } else {
+    console.log("❓ Entry non riconosciuta nello stack:", r);
   }
 });
 
