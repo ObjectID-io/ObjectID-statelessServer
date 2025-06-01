@@ -17,3 +17,16 @@
             "object": "0xc9520e0a3153473653e14231d26d8a4e94e65e6e8c76e96f8ef0862e041345d4",
             "new_mutable_metadata": ""
           }'
+
+
+
+curl -k -X POST https://slserver@objectid.io/update_geo_location \
+  -H "Content-Type: application/json" \
+  -d '{
+    "seed": "2c9510611b24a657a47f28192573fbe0355378fa2cb16fd8fde9fb83fef4b780",
+    "network": "testnet",
+    "creditToken": "8FHQCQVF+X3",
+    "controllerCap": "0x7fb33d4aac9ca0c3d4c6e25ce14cb3a6fd7c56322a0ef66cf3359dfed8b9d50c",
+    "object": "0xe4b193f4db4a94c010d87abe68a2ac61c0e72abeb4d71b640ce80bf938151687",
+    "new_location": "8FHQCQVF+X3"
+  }'

@@ -87,7 +87,7 @@ router.post("/create_object", async (req: Request, res: Response) => {
       geo_location,
     } = req.body;
 
-    logInputs("update_owner_did", {
+    logInputs("create_object", {
       network,
       creditToken,
       OIDcontrollerCap,
