@@ -15,10 +15,10 @@ services:
       - "traefik.http.routers.slserver.tls=true"
       - "traefik.http.routers.slserver.tls.certresolver=myresolver"
       - "traefik.http.services.slserver.loadbalancer.server.port=3002"
-      - "traefik.http.middlewares.cors.headers.accessControlAllowMethods=GET,POST,OPTIONS"
-      - "traefik.http.middlewares.cors.headers.accessControlAllowOriginList=*"
-      - "traefik.http.middlewares.cors.headers.accessControlAllowHeaders=Content-Type,Authorization"
-      - "traefik.http.routers.api.middlewares=cors@docker"
+      - "traefik.http.middlewares.slcors.headers.accessControlAllowMethods=GET,POST,OPTIONS"
+      - "traefik.http.middlewares.slcors.headers.accessControlAllowOriginList=*"
+      - "traefik.http.middlewares.slcors.headers.accessControlAllowHeaders=Content-Type,Authorization"
+      - "traefik.http.routers.slserver.middlewares=slcors@docker"
     networks:
       - traefik_proxy
 
