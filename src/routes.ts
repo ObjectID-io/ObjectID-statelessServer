@@ -727,4 +727,23 @@ router.stack.forEach((r: any) => {
   }
 });
 
+router.post("/get_object", async (req: Request, res: Response) => {
+  try {
+    const { network, objectId } = req.body;
+
+    logInputs("counter_set_value", {
+      network,
+      objectId,
+    });
+
+    client = new IotaClient({ url: getFullnodeUrl(network) });
+
+    const objectData = getObject(client, network);
+
+    res.json({ success: true, objectData });
+  } catch (err) {
+    console.error("Unexpected error:", err);
+  }
+});
+
 export default router;
