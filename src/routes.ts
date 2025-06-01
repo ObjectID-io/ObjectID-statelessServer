@@ -736,7 +736,7 @@ router.post("/get_objects", async (req: Request, res: Response) => {
   try {
     const { network, after } = req.body;
 
-    logInputs("get_objects_by_address", {
+    logInputs("get_objects", {
       network,
       after,
     });
