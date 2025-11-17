@@ -11,7 +11,6 @@ const router = Router();
 
 const nullSeed = "0000000000000000000000000000000000000000000000000000000000000000";
 
-//--- Inizializzazione delle costanti e variabili globali ---
 let creditToken: string;
 let policy: string;
 let packageID: string;
@@ -41,7 +40,7 @@ function logInputs(route: string, inputs: any) {
 }
 
 /**
- * Inizializza il client IOTA, le costanti Move e le variabili d'ambiente.
+ * client IOTA
  */
 
 async function setupEnv(seed: string, network: string) {
@@ -49,20 +48,20 @@ async function setupEnv(seed: string, network: string) {
   keyPair = Ed25519Keypair.deriveKeypairFromSeed(seed);
 
   if (network == "testnet") {
-    packageID = "0x5c915ac6b2c5156bdc79307cb1c23ea3d4a0897f2140de51e55fc0ad9f47b920";
-    console.log("defaultPackageID:", packageID);
-
+    packageID = "0x79857c1738f31d70165149678ae051d5bffbaa26dbb66a25ad835e09f2180ae5";
     graphqlProvider = process.env.GRAPHQL_PROVIDER || "https://graphql.testnet.iota.cafe/";
-
-    tokenCreditType = `0x2::token::Token<${packageID}::oid_credit::OID_CREDIT>`;
-    policyTokenType = `0x2::token::TokenPolicy<${packageID}::oid_credit::OID_CREDIT>`;
-    OIDobjectType = `${packageID}::oid_object::OIDObject`;
-
-    const pedges: ObjectEdge[] = await searchObjectsByType(policyTokenType, null, graphqlProvider);
-
-    policy = pedges[0].node.address;
-  } else {
+  } // mainnet
+  else {
+    packageID = "0xc6b77b8ab151fda5c98b544bda1f769e259146dc4388324e6737ecb9ab1a7465";
+    graphqlProvider = process.env.GRAPHQL_PROVIDER || "https://graphql.mainnet.iota.cafe/";
   }
+
+  tokenCreditType = `0x2::token::Token<${packageID}::oid_credit::OID_CREDIT>`;
+  policyTokenType = `0x2::token::TokenPolicy<${packageID}::oid_credit::OID_CREDIT>`;
+  OIDobjectType = `${packageID}::oid_object::OIDObject`;
+
+  const pedges: ObjectEdge[] = await searchObjectsByType(policyTokenType, null, graphqlProvider);
+  policy = pedges[0].node.address;
 
   return { client, keyPair, graphqlProvider, policy };
 }
