@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getObject = getObject;
 async function getObject(client, id) {
     if (!id)
-        return {}; // Evita chiamate inutili se eventId è undefined
+        return {};
     const { data } = await client.getObject({
         id,
         options: {

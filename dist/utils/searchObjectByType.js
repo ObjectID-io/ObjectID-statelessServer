@@ -3,11 +3,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.searchObjectsByType = void 0;
 const graphql_1 = require("@iota/iota-sdk/graphql");
 const _2025_2_1 = require("@iota/iota-sdk/graphql/schemas/2025.2");
-const searchObjectsByType = async (objectType, graphqlProvider) => {
+const searchObjectsByType = async (objectType, after, graphqlProvider) => {
     const gqlClient = new graphql_1.IotaGraphQLClient({
         url: graphqlProvider,
     });
-    const querystring = `
+    const old_querystring = `
       query ($type: String!) {
         objects(filter: { type: $type }) {
           edges {
@@ -26,16 +26,37 @@ const searchObjectsByType = async (objectType, graphqlProvider) => {
         }
       }
     `;
+    const querystring = `
+  query ($type: String!, $after: String) {
+  objects(filter: { type: $type }, after: $after) {
+    edges {
+      cursor
+      node {
+        address
+        asMoveObject {
+          contents {
+            type {
+              repr
+            }
+            data
+          }
+        }
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+    `;
     try {
         const queryObjects = (0, _2025_2_1.graphql)(querystring);
         const result = await gqlClient.query({
             query: queryObjects,
             variables: { type: objectType },
         });
-        if (!result ||
-            !result.data ||
-            !result.data.objects ||
-            !result.data.objects.edges) {
+        if (!result || !result.data || !result.data.objects || !result.data.objects.edges) {
             throw new Error("No data returned from the GraphQL query.");
         }
         return result.data.objects.edges;
