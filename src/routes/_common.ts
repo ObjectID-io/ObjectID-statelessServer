@@ -61,7 +61,7 @@ export async function setupEnv(seed: string, network: string): Promise<SetupEnvR
 
   if (network === "testnet") {
     packageID = "0x79857c1738f31d70165149678ae051d5bffbaa26dbb66a25ad835e09f2180ae5";
-    documentPackageID = "0x6e884a623d5661fca38cf9601cbc9fb85fa1d5aaff28a1fe96d260437b971ba7";
+    documentPackageID = "0xe3721e7e4dadd94ca6806f87c1c3a6369319e2c1d22b0c8c7b5a4a7d74d6932a";
     graphqlProvider = process.env.GRAPHQL_PROVIDER || "https://graphql.testnet.iota.cafe/";
     gasStation = {
       gasStation1URL: "https://gas1.objectid.io",
@@ -71,7 +71,7 @@ export async function setupEnv(seed: string, network: string): Promise<SetupEnvR
     };
   } else {
     packageID = "0xc6b77b8ab151fda5c98b544bda1f769e259146dc4388324e6737ecb9ab1a7465";
-    documentPackageID = "0x23ba3cf060ea3fbb53542e1a3347ee1eb215913081fecdf1eda462c3101da556";
+    documentPackageID = "0x6399e60508027bc419c5ba01d77859dfee4c266e93c0c70e48fe7079b1c76079";
     graphqlProvider = process.env.GRAPHQL_PROVIDER || "https://graphql.mainnet.iota.cafe/";
     gasStation = {
       gasStation1URL: "https://m-gas1.objectid.io",
