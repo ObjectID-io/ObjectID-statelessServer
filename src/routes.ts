@@ -31,6 +31,7 @@ import delete_component from "./routes/delete_component";
 
 import get_object from "./routes/get_object";
 import get_objects from "./routes/get_objects";
+import get_credit_token from "./routes/get_credit_token";
 
 // --- Documents (oid_document) ---
 import create_document from "./routes/create_document";
@@ -83,6 +84,7 @@ router.post("/delete_component", delete_component);
 
 router.post("/get_object", get_object);
 router.post("/get_objects", get_objects);
+router.post("/get_credit_token", get_credit_token);
 
 // --- Documents (oid_document) ---
 router.post("/create_document", create_document);
