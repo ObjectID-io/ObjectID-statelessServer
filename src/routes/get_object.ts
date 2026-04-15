@@ -11,7 +11,7 @@ export default async function get_object(req: Request, res: Response) {
     const { client } = await setupEnv(nullSeed, network);
 
     // NOTE: kept same invocation style as original (may be a higher-order function)
-    const objectData = getObject(client, network);
+    const objectData = await getObject(client, objectId);
 
     res.json({ success: true, objectData });
   } catch (err) {
