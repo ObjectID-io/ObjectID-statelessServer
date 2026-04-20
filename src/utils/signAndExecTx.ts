@@ -85,7 +85,7 @@ interface ReserveGasResult {
   gas_coins: ObjectRef[]; // References to the sponsor’s coins that will pay gas.
 }
 
-async function getSponsorGas(
+export async function getSponsorGas(
   gasBudget: number,
   gasStationUrl: string,
   gasStationToken: string
@@ -108,7 +108,7 @@ async function getSponsorGas(
   return reservation_response.data.result;
 }
 
-async function sponsorSignAndSubmit(
+export async function sponsorSignAndSubmit(
   reservationId: number,
   transaction: Uint8Array,
   senderSignature: string,
@@ -126,6 +126,68 @@ async function sponsorSignAndSubmit(
 
   // Return the resulting transaction effects
   return response.data.effects;
+}
+
+type reservedSponsorGasData = {
+  sponsor_address: string;
+  reservation_id: number;
+  gas_coins: [
+    {
+      objectId: string;
+      version: string;
+      digest: string;
+    },
+  ];
+  gasStationUsed: string;
+};
+
+export async function reserveGas(
+  gasBudget: number,
+  gasStation: gasStationCfg,
+): Promise<reservedSponsorGasData> {
+  const useFirst = Math.random() < 0.5;
+  const primary = useFirst ? "gasStation1" : "gasStation2";
+  const fallback = useFirst ? "gasStation2" : "gasStation1";
+
+  try {
+    const data = await getSponsorGas(
+      gasBudget,
+      gasStation[`${primary}URL` as keyof gasStationCfg] as string,
+      gasStation[`${primary}Token` as keyof gasStationCfg] as string,
+    );
+
+    return {
+      sponsor_address: data.sponsor_address,
+      reservation_id: data.reservation_id,
+      gas_coins: [
+        {
+          objectId: data.gas_coins[0].objectId,
+          version: data.gas_coins[0].version.toString(),
+          digest: data.gas_coins[0].digest,
+        },
+      ],
+      gasStationUsed: gasStation[`${primary}URL` as keyof gasStationCfg] as string,
+    };
+  } catch {
+    const data = await getSponsorGas(
+      gasBudget,
+      gasStation[`${fallback}URL` as keyof gasStationCfg] as string,
+      gasStation[`${fallback}Token` as keyof gasStationCfg] as string,
+    );
+
+    return {
+      sponsor_address: data.sponsor_address,
+      reservation_id: data.reservation_id,
+      gas_coins: [
+        {
+          objectId: data.gas_coins[0].objectId,
+          version: data.gas_coins[0].version.toString(),
+          digest: data.gas_coins[0].digest,
+        },
+      ],
+      gasStationUsed: gasStation[`${fallback}URL` as keyof gasStationCfg] as string,
+    };
+  }
 }
 
 async function attemptTransactionWithGasStation(

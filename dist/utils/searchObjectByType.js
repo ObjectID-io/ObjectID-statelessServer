@@ -7,59 +7,52 @@ const searchObjectsByType = async (objectType, after, graphqlProvider) => {
     const gqlClient = new graphql_1.IotaGraphQLClient({
         url: graphqlProvider,
     });
-    const old_querystring = `
-      query ($type: String!) {
-        objects(filter: { type: $type }) {
-          edges {
-            node {
-              address
-              asMoveObject {
-                contents {
-                  type {
-                    repr
-                  }
-                  data
-                }
-              }
-            }
-          }
-        }
-      }
-    `;
     const querystring = `
   query ($type: String!, $after: String) {
-  objects(filter: { type: $type }, after: $after) {
-    edges {
-      cursor
-      node {
-        address
-        asMoveObject {
-          contents {
-            type {
-              repr
+    objects(filter: { type: $type }, after: $after) {
+      edges {
+        cursor
+        node {
+          address
+          asMoveObject {
+            contents {
+              type {
+                repr
+              }
+              data
             }
-            data
           }
         }
       }
-    }
-    pageInfo {
-      hasNextPage
-      endCursor
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
-}
-    `;
+  `;
     try {
         const queryObjects = (0, _2025_2_1.graphql)(querystring);
-        const result = await gqlClient.query({
-            query: queryObjects,
-            variables: { type: objectType },
-        });
-        if (!result || !result.data || !result.data.objects || !result.data.objects.edges) {
-            throw new Error("No data returned from the GraphQL query.");
+        const allEdges = [];
+        let cursor = after;
+        let hasNextPage = true;
+        while (hasNextPage) {
+            const result = await gqlClient.query({
+                query: queryObjects,
+                variables: { type: objectType, after: cursor },
+            });
+            if (!result || !result.data || !result.data.objects || !Array.isArray(result.data.objects.edges)) {
+                throw new Error("No data returned from the GraphQL query.");
+            }
+            allEdges.push(...result.data.objects.edges);
+            const pageInfo = result.data.objects.pageInfo;
+            hasNextPage = Boolean(pageInfo?.hasNextPage);
+            cursor = pageInfo?.endCursor ?? null;
+            if (!hasNextPage || !cursor) {
+                hasNextPage = false;
+            }
         }
-        return result.data.objects.edges;
+        return allEdges;
     }
     catch (err) {
         if (err instanceof Error) {

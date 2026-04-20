@@ -2,13 +2,13 @@ import { IotaGraphQLClient } from "@iota/iota-sdk/graphql";
 import { graphql } from "@iota/iota-sdk/graphql/schemas/2025.2";
 import {} from "@iota/iota-sdk/graphql";
 
-// Tipi per la gestione dei dati
 export interface StructField {
   name: string;
   value: { Address?: number[]; String?: string; Number?: string };
 }
 
 export interface ObjectEdge {
+  cursor?: string;
   node: {
     address: string;
     asMoveObject?: {
@@ -27,6 +27,10 @@ export interface ObjectEdge {
 export interface QueryResult {
   objects: {
     edges: ObjectEdge[];
+    pageInfo?: {
+      hasNextPage?: boolean;
+      endCursor?: string | null;
+    };
   };
 }
 
@@ -35,64 +39,59 @@ export const searchObjectsByType = async (objectType: string, after: string | nu
     url: graphqlProvider,
   });
 
-  const old_querystring = `
-      query ($type: String!) {
-        objects(filter: { type: $type }) {
-          edges {
-            node {
-              address
-              asMoveObject {
-                contents {
-                  type {
-                    repr
-                  }
-                  data
-                }
-              }
-            }
-          }
-        }
-      }
-    `;
-
   const querystring = `
   query ($type: String!, $after: String) {
-  objects(filter: { type: $type }, after: $after) {
-    edges {
-      cursor
-      node {
-        address
-        asMoveObject {
-          contents {
-            type {
-              repr
+    objects(filter: { type: $type }, after: $after) {
+      edges {
+        cursor
+        node {
+          address
+          asMoveObject {
+            contents {
+              type {
+                repr
+              }
+              data
             }
-            data
           }
         }
       }
-    }
-    pageInfo {
-      hasNextPage
-      endCursor
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
     }
   }
-}
-    `;
+  `;
 
   try {
     const queryObjects = graphql(querystring);
+    const allEdges: ObjectEdge[] = [];
+    let cursor = after;
+    let hasNextPage = true;
 
-    const result = await gqlClient.query<QueryResult>({
-      query: queryObjects,
-      variables: { type: objectType },
-    });
+    while (hasNextPage) {
+      const result = await gqlClient.query<QueryResult>({
+        query: queryObjects,
+        variables: { type: objectType, after: cursor },
+      });
 
-    if (!result || !result.data || !result.data.objects || !result.data.objects.edges) {
-      throw new Error("No data returned from the GraphQL query.");
+      if (!result || !result.data || !result.data.objects || !Array.isArray(result.data.objects.edges)) {
+        throw new Error("No data returned from the GraphQL query.");
+      }
+
+      allEdges.push(...result.data.objects.edges);
+
+      const pageInfo = result.data.objects.pageInfo;
+      hasNextPage = Boolean(pageInfo?.hasNextPage);
+      cursor = pageInfo?.endCursor ?? null;
+
+      if (!hasNextPage || !cursor) {
+        hasNextPage = false;
+      }
     }
 
-    return result.data.objects.edges;
+    return allEdges;
   } catch (err: unknown) {
     if (err instanceof Error) {
       console.error("General Error:", err.message);
@@ -107,7 +106,6 @@ export const searchObjectsByType = async (objectType: string, after: string | nu
 
     if (graphQLError.networkError) {
       console.error("Network Error:", graphQLError.networkError);
-
       return [];
     }
 
@@ -115,6 +113,7 @@ export const searchObjectsByType = async (objectType: string, after: string | nu
       console.error("GraphQL Errors:", graphQLError.graphQLErrors);
       return [];
     }
+
     return [];
   }
 };

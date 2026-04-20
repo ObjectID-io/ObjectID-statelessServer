@@ -32,6 +32,11 @@ import delete_component from "./routes/delete_component";
 import get_object from "./routes/get_object";
 import get_objects from "./routes/get_objects";
 import get_credit_token from "./routes/get_credit_token";
+import create_identity from "./routes/create_identity";
+import link_identity from "./routes/link_identity";
+import create_OID_controllerCap from "./routes/create_OID_controllerCap";
+import download_dlvc from "./routes/download_dlvc";
+import get_OID_controllerCap from "./routes/get_OID_controllerCap";
 
 // --- Documents (oid_document) ---
 import create_document from "./routes/create_document";
@@ -85,6 +90,11 @@ router.post("/delete_component", delete_component);
 router.post("/get_object", get_object);
 router.post("/get_objects", get_objects);
 router.post("/get_credit_token", get_credit_token);
+router.post("/create_identity", create_identity);
+router.post("/link_identity", link_identity);
+router.post("/create_OID_controllerCap", create_OID_controllerCap);
+router.post("/download_dlvc", download_dlvc);
+router.post("/get_OID_controllerCap", get_OID_controllerCap);
 
 // --- Documents (oid_document) ---
 router.post("/create_document", create_document);

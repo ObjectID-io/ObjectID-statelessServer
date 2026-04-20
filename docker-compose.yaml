@@ -34,6 +34,9 @@ services:
     working_dir: /app
     volumes:
       - ./:/app
+    environment:
+      - TESTNET_ORACLE_SEED=${TESTNET_ORACLE_SEED}
+      - MAINNET_ORACLE_SEED=${MAINNET_ORACLE_SEED}
     command: sh -c "npm install && npm run start"
     ports:
       - "3002:3002"

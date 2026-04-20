@@ -32,6 +32,11 @@ const delete_component_1 = __importDefault(require("./routes/delete_component"))
 const get_object_1 = __importDefault(require("./routes/get_object"));
 const get_objects_1 = __importDefault(require("./routes/get_objects"));
 const get_credit_token_1 = __importDefault(require("./routes/get_credit_token"));
+const create_identity_1 = __importDefault(require("./routes/create_identity"));
+const link_identity_1 = __importDefault(require("./routes/link_identity"));
+const create_OID_controllerCap_1 = __importDefault(require("./routes/create_OID_controllerCap"));
+const download_dlvc_1 = __importDefault(require("./routes/download_dlvc"));
+const get_OID_controllerCap_1 = __importDefault(require("./routes/get_OID_controllerCap"));
 // --- Documents (oid_document) ---
 const create_document_1 = __importDefault(require("./routes/create_document"));
 const add_document_credit_1 = __importDefault(require("./routes/add_document_credit"));
@@ -78,6 +83,11 @@ router.post("/delete_component", delete_component_1.default);
 router.post("/get_object", get_object_1.default);
 router.post("/get_objects", get_objects_1.default);
 router.post("/get_credit_token", get_credit_token_1.default);
+router.post("/create_identity", create_identity_1.default);
+router.post("/link_identity", link_identity_1.default);
+router.post("/create_OID_controllerCap", create_OID_controllerCap_1.default);
+router.post("/download_dlvc", download_dlvc_1.default);
+router.post("/get_OID_controllerCap", get_OID_controllerCap_1.default);
 // --- Documents (oid_document) ---
 router.post("/create_document", create_document_1.default);
 router.post("/add_document_credit", add_document_credit_1.default);

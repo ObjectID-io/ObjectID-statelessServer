@@ -4,6 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.singAndExecTx = singAndExecTx;
+exports.getSponsorGas = getSponsorGas;
+exports.sponsorSignAndSubmit = sponsorSignAndSubmit;
+exports.reserveGas = reserveGas;
 const bcs_1 = require("@iota/bcs");
 const axios_1 = __importDefault(require("axios"));
 async function singAndExecTx(network, client, gasStation, useGasStation, keyPair, tx, callbacks) {
@@ -68,6 +71,41 @@ async function sponsorSignAndSubmit(reservationId, transaction, senderSignature,
     const response = await axios_1.default.post(gasStationUrl + "/v1/execute_tx", data);
     // Return the resulting transaction effects
     return response.data.effects;
+}
+async function reserveGas(gasBudget, gasStation) {
+    const useFirst = Math.random() < 0.5;
+    const primary = useFirst ? "gasStation1" : "gasStation2";
+    const fallback = useFirst ? "gasStation2" : "gasStation1";
+    try {
+        const data = await getSponsorGas(gasBudget, gasStation[`${primary}URL`], gasStation[`${primary}Token`]);
+        return {
+            sponsor_address: data.sponsor_address,
+            reservation_id: data.reservation_id,
+            gas_coins: [
+                {
+                    objectId: data.gas_coins[0].objectId,
+                    version: data.gas_coins[0].version.toString(),
+                    digest: data.gas_coins[0].digest,
+                },
+            ],
+            gasStationUsed: gasStation[`${primary}URL`],
+        };
+    }
+    catch {
+        const data = await getSponsorGas(gasBudget, gasStation[`${fallback}URL`], gasStation[`${fallback}Token`]);
+        return {
+            sponsor_address: data.sponsor_address,
+            reservation_id: data.reservation_id,
+            gas_coins: [
+                {
+                    objectId: data.gas_coins[0].objectId,
+                    version: data.gas_coins[0].version.toString(),
+                    digest: data.gas_coins[0].digest,
+                },
+            ],
+            gasStationUsed: gasStation[`${fallback}URL`],
+        };
+    }
 }
 async function attemptTransactionWithGasStation(network, client, gasStationURL, gasStationToken, keyPair, tx, gasBudget) {
     console.log(`Attempting transaction using Gas Station: ${gasStationURL}`);
