@@ -37,6 +37,7 @@ import link_identity from "./routes/link_identity";
 import create_OID_controllerCap from "./routes/create_OID_controllerCap";
 import download_dlvc from "./routes/download_dlvc";
 import get_OID_controllerCap from "./routes/get_OID_controllerCap";
+import get_IOTA_controllerCap from "./routes/get_IOTA_controllerCap";
 
 // --- Documents (oid_document) ---
 import create_document from "./routes/create_document";
@@ -95,6 +96,7 @@ router.post("/link_identity", link_identity);
 router.post("/create_OID_controllerCap", create_OID_controllerCap);
 router.post("/download_dlvc", download_dlvc);
 router.post("/get_OID_controllerCap", get_OID_controllerCap);
+router.post("/get_IOTA_controllerCap", get_IOTA_controllerCap);
 
 // --- Documents (oid_document) ---
 router.post("/create_document", create_document);
