@@ -56,6 +56,13 @@ import update_document_status from "./routes/update_document_status";
 import approve_document from "./routes/approve_document";
 import append_change_log from "./routes/append_change_log";
 import document_did_string from "./routes/document_did_string";
+import gs1_create_resource from "./routes/gs1_create_resource";
+import gs1_create_event from "./routes/gs1_create_event";
+import gs1_capture from "./routes/gs1_capture";
+import gs1_get_resource from "./routes/gs1_get_resource";
+import gs1_get_resource_events from "./routes/gs1_get_resource_events";
+import gs1_resolve_iota_id from "./routes/gs1_resolve_iota_id";
+import gs1_resolve_gs1_uri from "./routes/gs1_resolve_gs1_uri";
 
 const router = Router();
 
@@ -115,6 +122,14 @@ router.post("/update_document_status", update_document_status);
 router.post("/approve_document", approve_document);
 router.post("/append_change_log", append_change_log);
 router.post("/document_did_string", document_did_string);
+
+router.post("/gs1_create_resource", gs1_create_resource);
+router.post("/gs1_create_event", gs1_create_event);
+router.post("/gs1_capture", gs1_capture);
+router.post("/gs1_get_resource", gs1_get_resource);
+router.post("/gs1_get_resource_events", gs1_get_resource_events);
+router.post("/gs1_resolve_iota_id", gs1_resolve_iota_id);
+router.post("/gs1_resolve_gs1_uri", gs1_resolve_gs1_uri);
 
 router.stack.forEach((r: any) => {
   if (r.route && r.route.path) {
