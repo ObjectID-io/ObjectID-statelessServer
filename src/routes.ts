@@ -63,6 +63,7 @@ import gs1_get_resource from "./routes/gs1_get_resource";
 import gs1_get_resource_events from "./routes/gs1_get_resource_events";
 import gs1_resolve_iota_id from "./routes/gs1_resolve_iota_id";
 import gs1_resolve_gs1_uri from "./routes/gs1_resolve_gs1_uri";
+import stripe_report_credit_consumption from "./routes/stripe_report_credit_consumption";
 
 const router = Router();
 
@@ -130,6 +131,7 @@ router.post("/gs1_get_resource", gs1_get_resource);
 router.post("/gs1_get_resource_events", gs1_get_resource_events);
 router.post("/gs1_resolve_iota_id", gs1_resolve_iota_id);
 router.post("/gs1_resolve_gs1_uri", gs1_resolve_gs1_uri);
+router.post("/stripe_report_credit_consumption", stripe_report_credit_consumption);
 
 router.stack.forEach((r: any) => {
   if (r.route && r.route.path) {

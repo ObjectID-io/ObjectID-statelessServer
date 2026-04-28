@@ -62,6 +62,7 @@ const gs1_get_resource_1 = __importDefault(require("./routes/gs1_get_resource"))
 const gs1_get_resource_events_1 = __importDefault(require("./routes/gs1_get_resource_events"));
 const gs1_resolve_iota_id_1 = __importDefault(require("./routes/gs1_resolve_iota_id"));
 const gs1_resolve_gs1_uri_1 = __importDefault(require("./routes/gs1_resolve_gs1_uri"));
+const stripe_report_credit_consumption_1 = __importDefault(require("./routes/stripe_report_credit_consumption"));
 const router = (0, express_1.Router)();
 router.post("/create_object", create_object_1.default);
 router.post("/update_object_mutable_metadata", update_object_mutable_metadata_1.default);
@@ -121,6 +122,7 @@ router.post("/gs1_get_resource", gs1_get_resource_1.default);
 router.post("/gs1_get_resource_events", gs1_get_resource_events_1.default);
 router.post("/gs1_resolve_iota_id", gs1_resolve_iota_id_1.default);
 router.post("/gs1_resolve_gs1_uri", gs1_resolve_gs1_uri_1.default);
+router.post("/stripe_report_credit_consumption", stripe_report_credit_consumption_1.default);
 router.stack.forEach((r) => {
     if (r.route && r.route.path) {
         console.log(`✅ Route active: ${r.route.path}`);
