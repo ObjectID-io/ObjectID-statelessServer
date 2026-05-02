@@ -28,10 +28,11 @@ export default async function create_event(req: Request, res: Response) {
         tx.object(creditToken),
         tx.object(policy),
         tx.object(controllerCap),
-        tx.pure.address(object),
+        tx.object(object),
         tx.pure.string(event_type),
         tx.pure.string(immutable_metadata),
         tx.pure.string(mutable_metadata),
+        tx.object("0x6"),
       ],
       target: moveFunction,
     });
