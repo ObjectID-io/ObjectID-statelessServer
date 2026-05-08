@@ -9,8 +9,6 @@ import { singAndExecTx } from "./signAndExecTx";
 type Gs1ConfigInput = {
   seed: string;
   network: string;
-  gs1PackageId?: string;
-  gs1RegistryId?: string;
   controllerCap?: string;
   creditToken?: string;
 };
@@ -88,8 +86,8 @@ function extractGs1ModuleNameFromType(type: string): string {
 async function setupGs1Env(input: Gs1ConfigInput): Promise<Gs1ExecutionEnv> {
   const env = await setupEnv(input.seed, input.network);
 
-  const gs1PackageId = normalizeObjectId(input.gs1PackageId ?? process.env.OID_GS1_PACKAGE_ID ?? "");
-  const gs1RegistryId = normalizeObjectId(input.gs1RegistryId ?? process.env.OID_GS1_REGISTRY_ID ?? "");
+  const gs1PackageId = normalizeObjectId(env.gs1PackageId);
+  const gs1RegistryId = normalizeObjectId(env.gs1RegistryId);
   const controllerCap = normalizeObjectId(
     input.controllerCap ?? process.env.OID_CONTROLLER_CAP_ID ?? process.env.OIDcontrollerCap ?? ""
   );
@@ -97,8 +95,8 @@ async function setupGs1Env(input: Gs1ConfigInput): Promise<Gs1ExecutionEnv> {
     input.creditToken ?? process.env.OID_CREDIT_TOKEN_ID ?? process.env.creditToken ?? ""
   );
 
-  if (!gs1PackageId) throw new Error("Missing gs1PackageId or OID_GS1_PACKAGE_ID");
-  if (!gs1RegistryId) throw new Error("Missing gs1RegistryId or OID_GS1_REGISTRY_ID");
+  if (!gs1PackageId) throw new Error("Missing configured GS1 package id");
+  if (!gs1RegistryId) throw new Error("Missing configured GS1 registry id");
   if (!controllerCap) throw new Error("Missing controllerCap or OID_CONTROLLER_CAP_ID");
   if (!creditToken) throw new Error("Missing creditToken or OID_CREDIT_TOKEN_ID");
 

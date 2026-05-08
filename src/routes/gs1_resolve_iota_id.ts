@@ -4,12 +4,10 @@ import { logInputs } from "./_common";
 
 export default async function gs1_resolve_iota_id(req: Request, res: Response) {
   try {
-    const { seed, network, gs1PackageId, gs1RegistryId, epcUri, gtin, serial } = req.body;
+    const { seed, network, epcUri, gtin, serial } = req.body;
 
     logInputs("gs1_resolve_iota_id", {
       network,
-      gs1PackageId,
-      gs1RegistryId,
       epcUri,
       gtin,
       serial,
@@ -18,8 +16,6 @@ export default async function gs1_resolve_iota_id(req: Request, res: Response) {
     const objectId = await resolveGs1ObjectId({
       seed,
       network,
-      gs1PackageId,
-      gs1RegistryId,
       epcUri,
       gtin,
       serial,

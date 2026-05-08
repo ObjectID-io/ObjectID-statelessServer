@@ -7,8 +7,6 @@ export default async function gs1_create_event(req: Request, res: Response) {
     const {
       seed,
       network,
-      gs1PackageId,
-      gs1RegistryId,
       controllerCap,
       creditToken,
       objectId,
@@ -22,8 +20,6 @@ export default async function gs1_create_event(req: Request, res: Response) {
 
     logInputs("gs1_create_event", {
       network,
-      gs1PackageId,
-      gs1RegistryId,
       controllerCap,
       creditToken,
       objectId,
@@ -38,8 +34,6 @@ export default async function gs1_create_event(req: Request, res: Response) {
     const result = await appendGs1Event({
       seed,
       network,
-      gs1PackageId,
-      gs1RegistryId,
       controllerCap,
       creditToken,
       objectId,

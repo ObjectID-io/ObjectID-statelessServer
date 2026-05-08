@@ -4,12 +4,10 @@ import { logInputs } from "./_common";
 
 export default async function gs1_get_resource_events(req: Request, res: Response) {
   try {
-    const { seed, network, gs1PackageId, gs1RegistryId, objectId, epcUri, gtin, serial } = req.body;
+    const { seed, network, objectId, epcUri, gtin, serial } = req.body;
 
     logInputs("gs1_get_resource_events", {
       network,
-      gs1PackageId,
-      gs1RegistryId,
       objectId,
       epcUri,
       gtin,
@@ -19,8 +17,6 @@ export default async function gs1_get_resource_events(req: Request, res: Respons
     const result = await getGs1EventsForResource({
       seed,
       network,
-      gs1PackageId,
-      gs1RegistryId,
       objectId,
       epcUri,
       gtin,

@@ -5,12 +5,10 @@ import { logInputs } from "./_common";
 
 export default async function gs1_capture(req: Request, res: Response) {
   try {
-    const { seed, network, gs1PackageId, gs1RegistryId, controllerCap, creditToken, body, capturedByDid } = req.body;
+    const { seed, network, controllerCap, creditToken, body, capturedByDid } = req.body;
 
     logInputs("gs1_capture", {
       network,
-      gs1PackageId,
-      gs1RegistryId,
       controllerCap,
       creditToken,
       capturedByDid,
@@ -35,8 +33,6 @@ export default async function gs1_capture(req: Request, res: Response) {
       const result = await appendGs1Event({
         seed,
         network,
-        gs1PackageId,
-        gs1RegistryId,
         controllerCap,
         creditToken,
         epcUri: normalized.objectKey.epcUri,

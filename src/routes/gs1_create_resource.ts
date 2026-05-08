@@ -4,13 +4,10 @@ import { ensureGs1Twin } from "../utils/gs1Object";
 
 export default async function gs1_create_resource(req: Request, res: Response) {
   try {
-    const { seed, network, gs1PackageId, gs1RegistryId, controllerCap, creditToken, epcUri, immutable, mutablePatch } =
-      req.body;
+    const { seed, network, controllerCap, creditToken, epcUri, immutable, mutablePatch } = req.body;
 
     logInputs("gs1_create_resource", {
       network,
-      gs1PackageId,
-      gs1RegistryId,
       controllerCap,
       creditToken,
       epcUri,
@@ -21,8 +18,6 @@ export default async function gs1_create_resource(req: Request, res: Response) {
     const result = await ensureGs1Twin({
       seed,
       network,
-      gs1PackageId,
-      gs1RegistryId,
       controllerCap,
       creditToken,
       epcUri,
