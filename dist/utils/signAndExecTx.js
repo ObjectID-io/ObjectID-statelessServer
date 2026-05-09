@@ -9,10 +9,10 @@ exports.sponsorSignAndSubmit = sponsorSignAndSubmit;
 exports.reserveGas = reserveGas;
 const bcs_1 = require("@iota/bcs");
 const axios_1 = __importDefault(require("axios"));
-async function singAndExecTx(network, client, gasStation, useGasStation, keyPair, tx, callbacks) {
+async function singAndExecTx(network, client, gasStation, useGasStation, keyPair, tx, callbacks, gasBudget = 50000000) {
     try {
         if (useGasStation) {
-            return await executeWithGasStation(network, client, gasStation, keyPair, tx, callbacks);
+            return await executeWithGasStation(network, client, gasStation, keyPair, tx, callbacks, gasBudget);
         }
         else {
             return await executeWithoutGasStation(client, keyPair, tx, callbacks);
@@ -127,8 +127,7 @@ async function attemptTransactionWithGasStation(network, client, gasStationURL, 
     };
     return transactionResponse;
 }
-async function executeWithGasStation(network, client, gasStation, keyPair, tx, callbacks) {
-    const gasBudget = 50000000;
+async function executeWithGasStation(network, client, gasStation, keyPair, tx, callbacks, gasBudget = 50000000) {
     console.log("Attempting transaction with Gas Station fallback logic.");
     try {
         // Attempt 1: Primary Gas Station

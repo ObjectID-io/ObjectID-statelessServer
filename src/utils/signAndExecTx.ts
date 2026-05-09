@@ -30,11 +30,12 @@ export async function singAndExecTx(
     onSuccess: (result: IotaTransactionBlockResponse) => void;
     onError: (err: unknown) => void;
     onSettled?: () => void;
-  }
+  },
+  gasBudget = 50_000_000
 ) {
   try {
     if (useGasStation) {
-      return await executeWithGasStation(network, client, gasStation, keyPair, tx, callbacks);
+      return await executeWithGasStation(network, client, gasStation, keyPair, tx, callbacks, gasBudget);
     } else {
       return await executeWithoutGasStation(client, keyPair, tx, callbacks);
     }
@@ -244,13 +245,12 @@ async function executeWithGasStation(
   callbacks: {
     onSuccess: (result: IotaTransactionBlockResponse) => void;
     onError: (err: unknown) => void;
-  }
+  },
+  gasBudget = 50_000_000
 ): Promise<{
   tx_effect: IotaTransactionBlockResponse | null;
   success: boolean;
 }> {
-  const gasBudget = 50_000_000;
-
   console.log("Attempting transaction with Gas Station fallback logic.");
 
   try {

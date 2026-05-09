@@ -64,6 +64,14 @@ import gs1_get_resource_events from "./routes/gs1_get_resource_events";
 import gs1_resolve_iota_id from "./routes/gs1_resolve_iota_id";
 import gs1_resolve_gs1_uri from "./routes/gs1_resolve_gs1_uri";
 import stripe_report_credit_consumption from "./routes/stripe_report_credit_consumption";
+import upload_storage_file, { storageUploadMiddleware } from "./routes/upload_storage_file";
+import get_storage_file from "./routes/get_storage_file";
+import delete_storage_file from "./routes/delete_storage_file";
+import create_storage from "./routes/create_storage";
+import extend_storage from "./routes/extend_storage";
+import delete_storage from "./routes/delete_storage";
+import storage_status from "./routes/storage_status";
+import storage_top_down from "./routes/storage_top_down";
 
 const router = Router();
 
@@ -132,6 +140,17 @@ router.post("/gs1_get_resource_events", gs1_get_resource_events);
 router.post("/gs1_resolve_iota_id", gs1_resolve_iota_id);
 router.post("/gs1_resolve_gs1_uri", gs1_resolve_gs1_uri);
 router.post("/stripe_report_credit_consumption", stripe_report_credit_consumption);
+
+// --- OID storage ---
+router.post("/storage/uploads", storageUploadMiddleware, upload_storage_file);
+router.get("/storage/uploads/:id", get_storage_file);
+router.delete("/storage/uploads/:id", delete_storage_file);
+router.post("/storage/create", create_storage);
+router.post("/storage/extend", extend_storage);
+router.post("/storage/delete", delete_storage);
+router.post("/storage/top-down", storage_top_down);
+router.get("/storage/status/:objectId", storage_status);
+router.post("/storage/status", storage_status);
 
 router.stack.forEach((r: any) => {
   if (r.route && r.route.path) {
