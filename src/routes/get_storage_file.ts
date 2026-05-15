@@ -6,7 +6,7 @@ const storagePublicBaseUrl = storageApiBaseUrl.replace(/\/api$/, "");
 
 export default async function get_storage_file(req: Request, res: Response) {
   try {
-    const upstream = await axios.get(`${storagePublicBaseUrl}/uploads/${encodeURIComponent(req.params.id)}`, {
+    const upstream = await axios.get(`${storagePublicBaseUrl}/uploads/${encodeURIComponent(String(req.params.id))}`, {
       responseType: "stream",
       validateStatus: () => true,
     });
