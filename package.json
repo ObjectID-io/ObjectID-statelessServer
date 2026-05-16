@@ -12,8 +12,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@iota/identity-wasm": "^1.6.0-alpha.4",
+    "@iota/identity-wasm": "1.6.0-alpha.4",
     "@iota/iota-sdk": "^0.6.0",
+    "@iota/iota-interaction-ts": "0.3.3",
     "@types/form-data": "^2.2.1",
     "@types/multer": "^2.1.0",
     "axios": "^1.9.0",

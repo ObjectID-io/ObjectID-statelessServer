@@ -5,7 +5,7 @@ const storageApiBaseUrl = String(process.env.STORAGE_API_BASE_URL || "https://ap
 
 export default async function delete_storage_file(req: Request, res: Response) {
   try {
-    const { data, status } = await axios.delete(`${storageApiBaseUrl}/uploads/${encodeURIComponent(req.params.id)}`, {
+    const { data, status } = await axios.delete(`${storageApiBaseUrl}/uploads/${encodeURIComponent(String(req.params.id))}`, {
       validateStatus: () => true,
     });
     res.status(status).json(data);
