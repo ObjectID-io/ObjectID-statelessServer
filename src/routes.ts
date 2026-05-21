@@ -8,6 +8,7 @@ import update_geo_location from "./routes/update_geo_location";
 import delete_object from "./routes/delete_object";
 
 import create_event from "./routes/create_event";
+import create_event_linked from "./routes/create_event_linked";
 import update_event_mutable_metadata from "./routes/update_event_mutable_metadata";
 import delete_event from "./routes/delete_event";
 
@@ -83,6 +84,7 @@ router.post("/update_geo_location", update_geo_location);
 router.post("/delete_object", delete_object);
 
 router.post("/create_event", create_event);
+router.post("/create_event_linked", create_event_linked);
 router.post("/update_event_mutable_metadata", update_event_mutable_metadata);
 router.post("/delete_event", delete_event);
 
