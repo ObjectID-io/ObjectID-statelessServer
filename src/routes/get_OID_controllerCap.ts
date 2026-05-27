@@ -19,12 +19,12 @@ export default async function get_OID_controllerCap(req: Request, res: Response)
       return;
     }
 
-    const { packageID } = await setupEnv(nullSeed, network);
+    const { creditPackageID } = await setupEnv(nullSeed, network);
 
     const oracleRes = await axios.post(
       ORACLE_CREATE_OID_CONTROLLER_CAP_URL,
       {
-        packageid: packageID,
+        packageid: creditPackageID,
         controllerCap,
         network,
       },
