@@ -15,6 +15,7 @@ export type SetupEnvResult = {
   documentPackageID: string;
   gs1PackageId: string;
   gs1RegistryId: string;
+  creditPackageID: string;
   storagePackageID: string;
   storageCreditPackageID: string;
   storagePolicyID: string;
@@ -149,6 +150,7 @@ export async function setupEnv(seed: string, network: string): Promise<SetupEnvR
     documentPackageID,
     gs1PackageId,
     gs1RegistryId,
+    creditPackageID,
     storagePackageID,
     storageCreditPackageID,
     storagePolicyID,
