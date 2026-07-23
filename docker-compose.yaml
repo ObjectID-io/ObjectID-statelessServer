@@ -8,6 +8,6 @@ services:
     environment:
       - TESTNET_ORACLE_SEED=${TESTNET_ORACLE_SEED}
       - MAINNET_ORACLE_SEED=${MAINNET_ORACLE_SEED}
-    command: sh -c "npm install && npm run start"
+    command: sh -c "npm install && npm run build && npm run start"
     ports:
       - "127.0.0.1:3002:3002"

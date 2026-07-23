@@ -44,6 +44,7 @@ const update_agent_did_1 = __importDefault(require("./routes/update_agent_did"))
 const update_geo_location_1 = __importDefault(require("./routes/update_geo_location"));
 const delete_object_1 = __importDefault(require("./routes/delete_object"));
 const create_event_1 = __importDefault(require("./routes/create_event"));
+const create_event_linked_1 = __importDefault(require("./routes/create_event_linked"));
 const update_event_mutable_metadata_1 = __importDefault(require("./routes/update_event_mutable_metadata"));
 const delete_event_1 = __importDefault(require("./routes/delete_event"));
 const create_counter_1 = __importDefault(require("./routes/create_counter"));
@@ -112,6 +113,7 @@ router.post("/update_agent_did", update_agent_did_1.default);
 router.post("/update_geo_location", update_geo_location_1.default);
 router.post("/delete_object", delete_object_1.default);
 router.post("/create_event", create_event_1.default);
+router.post("/create_event_linked", create_event_linked_1.default);
 router.post("/update_event_mutable_metadata", update_event_mutable_metadata_1.default);
 router.post("/delete_event", delete_event_1.default);
 router.post("/create_counter", create_counter_1.default);
