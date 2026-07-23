@@ -1,33 +1,4 @@
 services:
-
- traefik:
-    image: traefik:v3.0
-    container_name: traefik
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    command:
-      - "--api.insecure=false"
-      - "--log.level=INFO"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=sdellava@gmail.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-    networks:
-      - traefik_default
-    volumes:
-      - "./letsencrypt:/letsencrypt"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "./logs:/var/log"
-
-
-
   slserver:
     image: node:20
     container_name: slserver
@@ -39,21 +10,4 @@ services:
       - MAINNET_ORACLE_SEED=${MAINNET_ORACLE_SEED}
     command: sh -c "npm install && npm run start"
     ports:
-      - "3002:3002"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.slserver.rule=Host(`slserver.objectid.io`)"  # replace with correct host name
-      - "traefik.http.routers.slserver.entrypoints=websecure"
-      - "traefik.http.routers.slserver.tls=true"
-      - "traefik.http.routers.slserver.tls.certresolver=myresolver"
-      - "traefik.http.services.slserver.loadbalancer.server.port=3002"
-      - "traefik.http.middlewares.slcors.headers.accessControlAllowMethods=GET,POST,OPTIONS"
-      - "traefik.http.middlewares.slcors.headers.accessControlAllowOriginList=*"
-      - "traefik.http.middlewares.slcors.headers.accessControlAllowHeaders=Content-Type,Authorization"
-      - "traefik.http.routers.slserver.middlewares=slcors@docker"
-    networks:
-      - traefik_default
-
-networks:
-  traefik_default:
-    external: true
+      - "127.0.0.1:3002:3002"
