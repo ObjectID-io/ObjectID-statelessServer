@@ -2,13 +2,13 @@
 set -eu
 
 STATELESS_BASE_URL="${OBJECTID_STATELESS_URL:-http://host.docker.internal:3002}"
-NETWORK="testnet"
-SEED="REPLACE_WITH_SEED"
-CREDIT_TOKEN="REPLACE_WITH_CREDIT_TOKEN"
-OID_CONTROLLER_CAP="REPLACE_WITH_OID_CONTROLLER_CAP"
-DEFAULT_OBJECT_TYPE="image"
-DEFAULT_OP_CODE="CREATE_IMAGE_OBJECT"
-DEFAULT_GEO_LOCATION=""
+NETWORK="${OBJECTID_NETWORK:-testnet}"
+SEED="${OBJECTID_SEED:-}"
+CREDIT_TOKEN="${OBJECTID_CREDIT_TOKEN:-}"
+OID_CONTROLLER_CAP="${OBJECTID_CONTROLLER_CAP:-}"
+DEFAULT_OBJECT_TYPE="${OBJECTID_DEFAULT_TYPE:-image}"
+DEFAULT_OP_CODE="${OBJECTID_DEFAULT_OP_CODE:-}"
+DEFAULT_GEO_LOCATION="${OBJECTID_DEFAULT_GEO_LOCATION:-}"
 
 FILE_NAME="${1:-}"
 IMAGE_URL="${2:-}"
@@ -21,8 +21,8 @@ if [ -z "$FILE_NAME" ] || [ -z "$IMAGE_URL" ]; then
 fi
 
 case "$SEED:$CREDIT_TOKEN:$OID_CONTROLLER_CAP" in
-  *REPLACE_WITH_SEED*|*REPLACE_WITH_CREDIT_TOKEN*|*REPLACE_WITH_OID_CONTROLLER_CAP*)
-    echo '{"success":false,"error":"Configura seed, credit token e OID controller cap dentro scripts/create_object.sh"}'
+  ""*|*::|*REPLACE_WITH_SEED*|*REPLACE_WITH_CREDIT_TOKEN*|*REPLACE_WITH_OID_CONTROLLER_CAP*)
+    echo '{"success":false,"error":"Configura OBJECTID_SEED, OBJECTID_CREDIT_TOKEN e OBJECTID_CONTROLLER_CAP nelle variabili d ambiente"}'
     exit 1
     ;;
 esac
@@ -58,7 +58,7 @@ const base = {
   object_type: process.env.DEFAULT_OBJECT_TYPE,
   product_url: process.env.IMAGE_URL,
   product_img_url: process.env.IMAGE_URL,
-  description: process.env.DESCRIPTION,
+  description: process.env.DESCRIPTION || "",
   op_code: process.env.DEFAULT_OP_CODE,
   immutable_metadata: {
     file_name: process.env.FILE_NAME,
@@ -66,7 +66,7 @@ const base = {
   mutable_metadata: {
     file_name: process.env.FILE_NAME,
     image_url: process.env.IMAGE_URL,
-    description: process.env.DESCRIPTION,
+    description: process.env.DESCRIPTION || "",
   },
   geo_location: process.env.DEFAULT_GEO_LOCATION,
 };
