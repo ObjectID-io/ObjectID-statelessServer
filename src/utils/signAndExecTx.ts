@@ -132,13 +132,13 @@ export async function sponsorSignAndSubmit(
 type reservedSponsorGasData = {
   sponsor_address: string;
   reservation_id: number;
-  gas_coins: [
+  gas_coins: Array<
     {
       objectId: string;
       version: string;
       digest: string;
-    },
-  ];
+    }
+  >;
   gasStationUsed: string;
 };
 
@@ -160,13 +160,11 @@ export async function reserveGas(
     return {
       sponsor_address: data.sponsor_address,
       reservation_id: data.reservation_id,
-      gas_coins: [
-        {
-          objectId: data.gas_coins[0].objectId,
-          version: data.gas_coins[0].version.toString(),
-          digest: data.gas_coins[0].digest,
-        },
-      ],
+      gas_coins: data.gas_coins.map((coin: ObjectRef) => ({
+        objectId: coin.objectId,
+        version: coin.version.toString(),
+        digest: coin.digest,
+      })),
       gasStationUsed: gasStation[`${primary}URL` as keyof gasStationCfg] as string,
     };
   } catch {
@@ -179,13 +177,11 @@ export async function reserveGas(
     return {
       sponsor_address: data.sponsor_address,
       reservation_id: data.reservation_id,
-      gas_coins: [
-        {
-          objectId: data.gas_coins[0].objectId,
-          version: data.gas_coins[0].version.toString(),
-          digest: data.gas_coins[0].digest,
-        },
-      ],
+      gas_coins: data.gas_coins.map((coin: ObjectRef) => ({
+        objectId: coin.objectId,
+        version: coin.version.toString(),
+        digest: coin.digest,
+      })),
       gasStationUsed: gasStation[`${fallback}URL` as keyof gasStationCfg] as string,
     };
   }

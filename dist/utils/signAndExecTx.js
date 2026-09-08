@@ -81,13 +81,11 @@ async function reserveGas(gasBudget, gasStation) {
         return {
             sponsor_address: data.sponsor_address,
             reservation_id: data.reservation_id,
-            gas_coins: [
-                {
-                    objectId: data.gas_coins[0].objectId,
-                    version: data.gas_coins[0].version.toString(),
-                    digest: data.gas_coins[0].digest,
-                },
-            ],
+            gas_coins: data.gas_coins.map((coin) => ({
+                objectId: coin.objectId,
+                version: coin.version.toString(),
+                digest: coin.digest,
+            })),
             gasStationUsed: gasStation[`${primary}URL`],
         };
     }
@@ -96,13 +94,11 @@ async function reserveGas(gasBudget, gasStation) {
         return {
             sponsor_address: data.sponsor_address,
             reservation_id: data.reservation_id,
-            gas_coins: [
-                {
-                    objectId: data.gas_coins[0].objectId,
-                    version: data.gas_coins[0].version.toString(),
-                    digest: data.gas_coins[0].digest,
-                },
-            ],
+            gas_coins: data.gas_coins.map((coin) => ({
+                objectId: coin.objectId,
+                version: coin.version.toString(),
+                digest: coin.digest,
+            })),
             gasStationUsed: gasStation[`${fallback}URL`],
         };
     }
