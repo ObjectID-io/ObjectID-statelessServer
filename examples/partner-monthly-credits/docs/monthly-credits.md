@@ -2,7 +2,7 @@
 
 ## Availability and onboarding
 
-The monthly post-paid flow is enabled for explicitly approved **testnet** contracts. Mainnet monthly issuance remains disabled. Pre-paid orders are a separate API flow; administratively managed monthly-only partners cannot use pre-paid order endpoints.
+The monthly post-paid flow supports **testnet and explicitly approved mainnet contracts**. Mainnet activation alone does not authorize a customer: the contract, source IP, recipient, credentials and independent signer policy must all permit issuance. Testnet partners/contracts are not copied to mainnet. Pre-paid orders are a separate API flow; administratively managed monthly-only partners cannot use pre-paid order endpoints.
 
 ObjectID creates your technical profile and configures the contract. Provide an agreed destination address and your server's static public egress IP, not a private LAN/container IP. Multiple exact IPs may be approved; an empty list is invalid, not unrestricted access. ObjectID securely supplies a Partner ID and a one-time-displayed API secret. You do not need a customer DID, portal registration, bank account details or fiscal data in the technical service. An opaque ERP customer reference links the usage statement to accounting.
 
@@ -10,7 +10,7 @@ The administrator enables the contract and removes its hold after agreeing the m
 
 ## Authentication
 
-Public base URL: `https://partner-api.objectid.io/testnet`.
+Public base URLs: `https://partner-api.objectid.io/testnet` for testnet and `https://partner-api.objectid.io` for mainnet. The client defaults to testnet; pass `network: "mainnet"` explicitly for a mainnet integration. The CLI additionally requires `OBJECTID_ALLOW_MAINNET_REQUEST=true` before submitting a mainnet mint. Status and allowance reads do not mint.
 
 Every API call, including reads, requires:
 
@@ -78,7 +78,7 @@ On success, `tx_digest`, `credit_object_ids`, `resolved_at` and `chain_executed_
 
 `GET /v1/credit-allowance` returns `period_start`, `period_end`, `timezone`, `monthly_limit`, `reserved`, `consumed`, `available`, `hold`, `enabled`, `network`, `recipient_address` and `reservation_only`. Numeric credit counters are decimal strings. `reservation_only: false` indicates the instance is configured for issuance; contract controls still apply.
 
-Periods are UTC calendar months. Available quantity is the monthly limit minus consumed and reserved, with a floor of zero. Cross-month pending requests keep their original reservation period. Outstanding exposure is a separate constraint: all unsettled non-failed requests, including successful issuance, count toward exposure. An audited full-payment allocation releases only its assigned successful requests; reversing the allocation restores exposure. Manual settlement is currently available for testnet simulation only. A new month does not clear unpaid exposure, and settlement does not reset monthly consumption. A positive `available` balance therefore does not guarantee admission.
+Periods are UTC calendar months. Available quantity is the monthly limit minus consumed and reserved, with a floor of zero. Cross-month pending requests keep their original reservation period. Outstanding exposure is a separate constraint: all unsettled non-failed requests, including successful issuance, count toward exposure. An audited full-payment allocation releases only its assigned successful requests; reversing the allocation restores exposure. Manual settlement is simulated on testnet and records an actual operator payment acknowledgement on mainnet. A new month does not clear unpaid exposure, and settlement does not reset monthly consumption. A positive `available` balance therefore does not guarantee admission.
 
 ## Safe retries and reconciliation
 
@@ -108,7 +108,7 @@ Default application budgets: 600 requests/minute globally, 120/IP, 60/partner, 2
 
 The event type is **`objectid.credit_request.resolved`**, for confirmed success or definitive failure. The payload contains `event_id`, `request_id`, `status`, `network`, `recipient_address`, `credit_amount`, `tx_digest`, `credit_object_ids`, `resolved_at`, `chain_executed_at` and `event_type`.
 
-Verify `X-ObjectID-Signature` as HMAC-SHA256 of `timestamp + "." + exactRawBody`, using your partner API secret. Validate `X-ObjectID-Timestamp` freshness (the helper uses 300 seconds), compare `X-ObjectID-Event-Id` with `event_id`, validate the expected event/network and correlate the request, recipient and quantity against your stored request. See `verify-callback.mjs`.
+Verify `X-ObjectID-Signature` as HMAC-SHA256 of `timestamp + "." + exactRawBody`, using your partner API secret. Validate `X-ObjectID-Timestamp` freshness (the helper uses 300 seconds), compare `X-ObjectID-Event-Id` with `event_id`, validate the expected event/network (pass `expectedNetwork: "mainnet"` to the helper for mainnet) and correlate the request, recipient and quantity against your stored request. See `verify-callback.mjs`.
 
 Deduplicate event IDs durably, applying the business update and deduplication record atomically. Return 2xx only after durable acceptance; return 2xx for an already processed valid event. Non-2xx and timeouts cause retries of the same event ID/payload with a new timestamp/signature. Callback failure does not undo or duplicate issuance. Never accept a callback based on the source address alone. The helper is not a complete HTTP receiver or durable event store.
 
@@ -116,4 +116,4 @@ Deduplicate event IDs durably, applying the business update and deduplication re
 
 Administrators can load a monthly statement and CSV in Post-paid / Monthly statements. Only confirmed successful issuance with an execution timestamp in the chosen UTC month contributes, using the price and ERP reference saved for that request's contract version. The reservation month may differ. Pending/failed requests are excluded; missing execution timestamps require investigation.
 
-The statement is a live preview, not an invoice or a closed ledger: late confirmations can update a historical month. Testnet reports are explicitly **NOT BILLABLE**. Automatic invoice creation/emailing and payment collection are not implemented by this kit. Administrators can record and reverse full-payment simulations against selected successful testnet requests, with invoice references and audit reasons; the client cannot settle its own usage. Actual invoices, bank data and tax treatment stay in the ERP/accounting workflow; no tax exemption is assumed by the API.
+The statement is a live preview, not an invoice or a closed ledger: late confirmations can update a historical month. Testnet reports are explicitly **NOT BILLABLE**. Automatic invoice creation/emailing and payment collection are not implemented by this kit. Administrators can record and reverse full-payment acknowledgements against selected successful mainnet requests (simulations on testnet), with invoice references and audit reasons; the client cannot settle its own usage. Actual invoices, bank data and tax treatment stay in the ERP/accounting workflow; no tax exemption is assumed by the API.

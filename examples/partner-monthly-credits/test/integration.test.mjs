@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash,createHmac} from 'node:crypto';
+import {spawnSync} from 'node:child_process';
 import {monthlyClient,signRequest} from '../monthly-client.mjs';
 import {verifyCallback} from '../verify-callback.mjs';
 test('client signs the stripped path and exact sent bytes; retries retain business ID with fresh nonce',async()=>{
@@ -33,4 +34,11 @@ test('callback verifies exact bytes, age, event ID and network; rejects tamper',
   assert.throws(()=>verifyCallback({secret,rawBody:Buffer.concat([rawBody,Buffer.from(' ')]),headers,nowSeconds:1000}));
   assert.throws(()=>verifyCallback({secret,rawBody,headers,nowSeconds:1400}));
   assert.throws(()=>verifyCallback({secret,rawBody,headers:{...headers,'x-objectid-event-id':'wrong'},nowSeconds:1000}));
+});
+test('mainnet is explicit and CLI minting requires a second opt-in',async()=>{
+  let called='';const client=monthlyClient({partnerId:'fixture',secret:'fixture',network:'mainnet',fetchImpl:async url=>{called=url;return new Response('{}');}});
+  await client.allowance();assert.equal(called,'https://partner-api.objectid.io/v1/credit-allowance');
+  assert.throws(()=>monthlyClient({partnerId:'fixture',secret:'fixture',network:'other'}));
+  const result=spawnSync(process.execPath,[new URL('../cli.mjs',import.meta.url).pathname.replace(/^\/([A-Za-z]:)/,'$1'),'request'],{env:{...process.env,OBJECTID_PARTNER_ID:'offline-fixture',OBJECTID_PARTNER_SECRET:'offline-fixture',OBJECTID_NETWORK:'mainnet',OBJECTID_ALLOW_MAINNET_REQUEST:'false'},encoding:'utf8'});
+  assert.equal(result.status,1);assert.ok(result.stderr.includes('OBJECTID_ALLOW_MAINNET_REQUEST'));
 });
