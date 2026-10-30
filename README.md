@@ -152,3 +152,8 @@ Available storage routes:
 - `POST /storage/delete`
 - `GET /storage/status/:objectId`
 - `POST /storage/status`
+
+## Partner monthly credit integration
+
+The separate ObjectID Partner API provides contract-based monthly credit issuance for approved testnet partners. See the [integration guide and executable examples](examples/partner-monthly-credits/README.md). These examples do not change the stateless server API. Mainnet monthly issuance remains disabled.
+
