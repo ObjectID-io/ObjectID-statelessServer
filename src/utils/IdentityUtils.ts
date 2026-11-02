@@ -1,5 +1,5 @@
 import { IotaClient, type IotaObjectData, type IotaObjectRef } from "@iota/iota-sdk/client";
-import { TransactionDataBuilder } from "@iota/iota-sdk/transactions";
+import { Transaction } from "@iota/iota-sdk/transactions";
 import { Ed25519Keypair } from "@iota/iota-sdk/keypairs/ed25519";
 import { decodeIotaPrivateKey } from "@iota/iota-sdk/cryptography";
 import {
@@ -23,28 +23,18 @@ import {
   VerificationMethod,
   Timestamp,
 } from "@iota/identity-wasm/node";
-import { create as buildCreateIdentityTx } from "@iota/iota-interaction-ts/node/move_calls/identity/create";
-import {
-  executeUpdate as buildExecuteUpdateTx,
-  proposeUpdate as buildProposeUpdateTx,
-} from "@iota/iota-interaction-ts/node/move_calls/identity/update";
-import { reserveGas, sponsorSignAndSubmit, type gasStationCfg } from "./signAndExecTx";
+import { buildCreateIdentityTx, buildExecuteUpdateTx, buildProposeUpdateTx } from "./identityTransactions";
+import { executeConfiguredTransaction, type gasStationCfg } from "./signAndExecTx";
+import { loadPublicOnChainConfig } from "./onchainConfig";
 import { resolveDID } from "./resolveDID";
 import { base64UrlEncode, normalizeLinkedDomain, wait } from "./utils";
 
 const debug = false;
-const GAS_BUDGET = 50_000_000;
 
 type SharedObjectRef = {
   objectId: string;
   initialSharedVersion: string | number;
   mutable: boolean;
-};
-
-type SponsoredBuildResult = {
-  reservationId: number;
-  gasStationUrl: string;
-  txBytes: Uint8Array;
 };
 
 type LinkDomainResult = {
@@ -113,7 +103,12 @@ function assertEffectsSuccess(transactionEffects: any, context: string) {
   }
 }
 
-async function getIdentityPackageId(client: IotaClient): Promise<string> {
+async function getIdentityPackageId(client: IotaClient, network: string): Promise<string> {
+  const { json } = await loadPublicOnChainConfig(network, client);
+  if (json.IOTAidentityPackage) {
+    if (!/^0x[0-9a-fA-F]{64}$/.test(json.IOTAidentityPackage)) throw new Error("Invalid on-chain IOTAidentityPackage");
+    return json.IOTAidentityPackage;
+  }
   const readOnly = await IdentityClientReadOnly.create(client);
   const packageId = readOnly.packageId();
 
@@ -124,55 +119,11 @@ async function getIdentityPackageId(client: IotaClient): Promise<string> {
   return packageId;
 }
 
-async function buildSponsoredTxBytes(
-  client: IotaClient,
-  senderAddress: string,
-  txBcs: Uint8Array,
-  gasStation: gasStationCfg,
-  gasBudget = GAS_BUDGET,
-): Promise<SponsoredBuildResult> {
-  const reservedSponsorGasData = await reserveGas(gasBudget, gasStation);
-  const gasPrice = await client.getReferenceGasPrice();
-  const txData = TransactionDataBuilder.fromBytes(txBcs);
-  const gasData = {
-    budget: gasBudget.toString(),
-    owner: reservedSponsorGasData.sponsor_address,
-    payment: reservedSponsorGasData.gas_coins.map((coin) => ({
-      objectId: coin.objectId,
-      version: coin.version,
-      digest: coin.digest,
-    })),
-    price: gasPrice.toString(),
-  };
-  const overrides = { sender: senderAddress, gasData };
-
-  (txData as any).sender = overrides.sender;
-  (txData as any).gasData = overrides.gasData;
-
-  return {
-    reservationId: reservedSponsorGasData.reservation_id,
-    gasStationUrl: reservedSponsorGasData.gasStationUsed,
-    txBytes: txData.build({ overrides }),
-  };
-}
-
 async function signAndSubmitSponsoredTx(
-  client: IotaClient,
-  keyPair: Ed25519Keypair,
-  txBcs: Uint8Array,
-  gasStation: gasStationCfg,
-  gasBudget = GAS_BUDGET,
+  client: IotaClient, keyPair: Ed25519Keypair, tx: Transaction, network: string,
 ) {
-  const senderAddress = keyPair.toIotaAddress();
-  const sponsored = await buildSponsoredTxBytes(client, senderAddress, txBcs, gasStation, gasBudget);
-  const signedTx = await keyPair.signTransaction(sponsored.txBytes);
-
-  return sponsorSignAndSubmit(
-    sponsored.reservationId,
-    sponsored.txBytes,
-    signedTx.signature,
-    sponsored.gasStationUrl,
-  );
+  const response = await executeConfiguredTransaction(network, client, keyPair, tx);
+  return response.effects!;
 }
 
 async function getSharedIdentityRef(client: IotaClient, did: string): Promise<SharedObjectRef> {
@@ -320,9 +271,9 @@ export async function createIdentityForKeyPair(
   const storage = new Storage(new JwkMemStore(), new KeyIdMemStore());
   const localNetwork = network === "mainnet" ? "iota" : network;
   const [unpublished] = await createDocumentForNetworkUsingKeyPair(storage, localNetwork, keyPair);
-  const identityPackageId = await getIdentityPackageId(client);
-  const txBcs = await buildCreateIdentityTx(unpublished.pack(), identityPackageId);
-  const transactionEffects = await signAndSubmitSponsoredTx(client, keyPair, txBcs, gasStation);
+  const identityPackageId = await getIdentityPackageId(client, network);
+  const tx = buildCreateIdentityTx(unpublished.pack(), identityPackageId);
+  const transactionEffects = await signAndSubmitSponsoredTx(client, keyPair, tx, network);
 
   assertEffectsSuccess(transactionEffects, "create_identity transaction");
   await wait(2);
@@ -384,9 +335,9 @@ async function submitDidUpdate(
   did: string,
   didDocument: IotaDocument,
   keypair: Ed25519Keypair,
-  gasStationCfg: gasStationCfg,
+  network: string,
 ): Promise<LinkDomainResult> {
-  const identityPackageId = await getIdentityPackageId(client);
+  const identityPackageId = await getIdentityPackageId(client, network);
   const identityRef = await getSharedIdentityRef(client, did);
   const controllerCapRef = await getControllerCapRefForDid(
     client,
@@ -395,14 +346,14 @@ async function submitDidUpdate(
     did,
   );
 
-  const proposalTxBcs = await buildProposeUpdateTx(
+  const proposalTx = buildProposeUpdateTx(
     identityRef as any,
     controllerCapRef as any,
     didDocument.pack(),
     identityPackageId,
     undefined,
   );
-  const proposalEffects = await signAndSubmitSponsoredTx(client, keypair, proposalTxBcs, gasStationCfg);
+  const proposalEffects = await signAndSubmitSponsoredTx(client, keypair, proposalTx, network);
   assertEffectsSuccess(proposalEffects, "propose_update transaction");
 
   await wait(2);
@@ -418,13 +369,13 @@ async function submitDidUpdate(
     };
   }
 
-  const executeTxBcs = await buildExecuteUpdateTx(
+  const executeTx = buildExecuteUpdateTx(
     identityRef as any,
     controllerCapRef as any,
     proposalId,
     identityPackageId,
   );
-  const transactionEffects = await signAndSubmitSponsoredTx(client, keypair, executeTxBcs, gasStationCfg);
+  const transactionEffects = await signAndSubmitSponsoredTx(client, keypair, executeTx, network);
   assertEffectsSuccess(transactionEffects, "execute_update transaction");
 
   await wait(2);
@@ -459,7 +410,7 @@ export const linkDomain = async (
 
   didDocument.insertService(linkedDomainService.toService());
 
-  const result = await submitDidUpdate(client, didId.toString(), didDocument, keypair, gasStationCfg);
+  const result = await submitDidUpdate(client, didId.toString(), didDocument, keypair, didId.toString().startsWith("did:iota:testnet:") ? "testnet" : "mainnet");
   return {
     did: didId.toString(),
     controllerCap: result.controllerCap,
@@ -484,7 +435,7 @@ export const unlinkDomain = async (
   const serviceUrl: DIDUrl = didId.clone().join("#domain_linkage");
   didDocument.removeService(serviceUrl);
 
-  const result = await submitDidUpdate(client, didId.toString(), didDocument, keypair, gasStationCfg);
+  const result = await submitDidUpdate(client, didId.toString(), didDocument, keypair, didId.toString().startsWith("did:iota:testnet:") ? "testnet" : "mainnet");
   return {
     did: didId.toString(),
     controllerCap: result.controllerCap,

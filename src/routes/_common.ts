@@ -5,6 +5,7 @@ import { loadEffectiveOnChainConfig, normalizeObjectIdNetwork } from "../utils/o
 import { searchObjectsByType, type ObjectEdge } from "../utils/searchObjectByType";
 
 export const nullSeed = "0000000000000000000000000000000000000000000000000000000000000000";
+// Legacy route argument; execution uses public on-chain sponsorship.mode instead.
 export const useGasStation = true;
 
 export type SetupEnvResult = {

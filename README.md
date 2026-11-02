@@ -21,6 +21,56 @@ For the `create_OID_controllerCap` route you must provide an oracle signer seed 
 
 As a fallback, `ORACLE_SEED` is also supported.
 
+## Sponsorship: Gas Station or on-chain AA
+
+Every transaction sent by this server, including Identity creation and DID
+updates (proposal and execution), reads the **public shared on-chain Config**
+for its network. The choice is refreshed per transaction and is independent of
+user-owned Config objects, cached session settings and the legacy route
+`useGasStation` argument.
+
+- `sponsorship.mode: "gas-station"` selects the configured `gasStation` endpoints.
+- `sponsorship.mode: "aa-onchain"` selects `sponsorship.aa.sponsorAccountId`,
+  `packageId` and optional `typePackageId`, using the same schema as the dApp/provider.
+- Without `sponsorship`, legacy `useGasStation: true` selects GS and an explicit
+  `useGasStation: false` selects sender payment. Missing or malformed settings fail.
+- Public `gasBudget` takes precedence; numeric strings with underscores are accepted.
+  AA also validates the sponsor's shared-object type, enabled state, expiry,
+  maximum gas budget/price and available gas coins.
+
+A sponsored failure never switches to sender payment or a different sponsorship
+mode. GS failover is limited to gas reservation, before signing/submission.
+Submission errors retain the digest for reconciliation; the server does not
+replay a transaction after an uncertain result. AA coin selection is serialized
+within one Node process; multiple instances still need enough funded sponsor
+coins for concurrent traffic.
+
+The former unused Identity prototype patch was removed. Active Identity helpers
+use the common executor. The legacy ControllerCap Move calls are preserved in
+`src/utils/identityTransactions.ts` because modern interaction packages no longer
+ship those internal builders. No application Move contracts were changed.
+
+### Build and verification
+
+Node.js 20 or newer is required. Dependencies are pinned to IOTA SDK 1.15.1,
+Identity WASM 1.6.0-beta.4 and interaction 0.5.1 with a committed lockfile.
+Always rebuild after pulling; `dist/` is generated output.
+
+```bash
+npm ci
+npm test
+npm run check:sponsorship
+npm start
+```
+
+`check:sponsorship` reads both public network configurations, validates the AA
+accounts and simulates Identity creation with the configured gas budget. It
+never signs or submits a transaction, reserves no GS gas, and requires AA to be
+selected. On 2026-11-02 it passed on testnet (100,000,000 NANOS) and mainnet
+(20,000,000 NANOS). Dry-run success validates the Move execution; it does not
+replace a submitted transaction test of AA authentication. Switching GS/AA
+requires only changing the public on-chain configuration, with no rebuild.
+
 ## Storage
 
 The stateless server exposes storage helper endpoints used by the ObjectID storage flow.
